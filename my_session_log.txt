@@ -1,0 +1,78 @@
+
+Switch>
+Switch>terminal width 511
+Switch>terminal length 0
+Switch>
+Switch>
+Switch>enable
+Password: 
+Switch#
+Switch#
+Switch#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+Switch(config)#
+Switch(config)#interface FastEthernet 0/2
+Switch(config-if)#interface FastEthernet 0/1
+Switch(config-if)#description Unused interface - used Netmiko
+Switch(config-if)#exit
+Switch(config)#description LAN interface - used Netmiko
+                 ^
+% Invalid input detected at '^' marker.
+
+Switch(config)#
+Switch(config)#end
+Switch#
+Switch#
+Switch#show running-config | begin interface FastEthernet0/1
+interface FastEthernet0/1
+ description Unused interface - used Netmiko
+ switchport access vlan 10
+ switchport mode access
+!
+interface FastEthernet0/2
+!
+interface FastEthernet0/3
+!
+interface FastEthernet0/4
+!
+interface FastEthernet0/5
+!
+interface FastEthernet0/6
+!
+interface FastEthernet0/7
+!
+interface FastEthernet0/8
+!
+interface FastEthernet0/9
+!
+interface FastEthernet0/10
+!
+interface FastEthernet0/11
+!
+interface FastEthernet0/12
+!
+interface Vlan1
+ no ip address
+ no ip route-cache
+ shutdown
+!
+interface Vlan10
+ ip address 192.168.10.1 255.255.255.0
+ no ip route-cache
+!
+ip http server
+!
+line con 0
+ logging synchronous
+line vty 0 4
+ login local
+ transport input ssh
+line vty 5 15
+ login local
+ transport input ssh
+!
+!
+end
+
+Switch#
+Switch#exit
