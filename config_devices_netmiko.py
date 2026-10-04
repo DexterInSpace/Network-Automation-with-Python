@@ -30,7 +30,7 @@ for device in devices:
     # Use dictionary unpacking (**) to pass key-value pairs from dictionary
     connection = netmiko.ConnectHandler(**device)
 
-    # Enter privileged EXEC mode
+    # Enter EXEC mode
     connection.enable()
 
     # Stores command output
@@ -50,7 +50,7 @@ for device in devices:
             "switchport trunk allowed vlan 10,20,30,99"
         ])
 
-    # If the device is R1, configure router-on-a-stick on g0/0
+    # If the device is R1, configure router-on-a-stick
     elif device == R1:
         cli_output = connection.send_config_set([
             "interface g0/1.20",
