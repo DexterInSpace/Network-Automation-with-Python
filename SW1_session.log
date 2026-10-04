@@ -1,0 +1,26 @@
+SW1>
+SW1>terminal width 511
+SW1>terminal length 0
+SW1>
+SW1>
+SW1>enable
+Password: 
+SW1#
+SW1#
+SW1#configure terminal
+Enter configuration commands, one per line.  End with CNTL/Z.
+SW1(config)#
+SW1(config)#vlan 99
+SW1(config-vlan)#name Native
+SW1(config-vlan)#vlan 20
+SW1(config-vlan)#name IT
+SW1(config-vlan)#vlan 30
+SW1(config-vlan)#name HR
+SW1(config-vlan)#interface g0/1
+SW1(config-if)#switchport trunk native vlan 99
+SW1(config-if)#switchport trunk allowed vlan 10,20,30,99
+SW1(config-if)#
+SW1(config-if)#end
+SW1#
+SW1#
+SW1#exit

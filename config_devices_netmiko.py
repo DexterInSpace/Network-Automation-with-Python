@@ -1,48 +1,71 @@
-## Configure Cisco routers and switches ##
+## Configure Cisco switch and router (VLANs, trunk, router-on-a-stick) ##
 
-# Import netmiko library
+# Import the Netmiko library
 import netmiko
-import time
 
-# Establish SSH connection to device
-connection = netmiko.ConnectHandler(ip="192.168.10.1",
-                                    device_type="cisco_ios",
-                                    username="admin",
-                                    password="networks",
-                                    secret="networks",
-                                    session_log="my_session_log_2.txt") # Captures logs for debugging
+# Define a dictionary of connection details for each device
+SW1 = {
+    "ip": "192.168.10.10",
+    "device_type": "cisco_ios",
+    "username": "admin1",
+    "password": "cisco",
+    "secret": "cisco",
+    "session_log": "SW1_session.log"
+}
 
-# Defines list of interface config commands
-interface_description_list = [
-    "interface FastEthernet 0/1",
-    "description LAN interface - used Netmiko",
-    "exit",
+R1 = {
+    "ip": "192.168.10.1",
+    "device_type": "cisco_ios",
+    "username": "admin2",
+    "password": "networks",
+    "secret": "networks",
+    "session_log": "R1_session.log"
+}
 
-    "interface FastEthernet 0/2",
-    "description Unused interface - used Netmiko",
-    "exit"
-]
+# List of devices to loop through
+devices = [SW1, R1]
 
-# Enter EXEC mode
-connection.enable()
+for device in devices:
+
+    # Use dictionary unpacking (**) to pass key-value pairs from dictionary
+    connection = netmiko.ConnectHandler(**device)
+
+    # Enter privileged EXEC mode
+    connection.enable()
+
+    # Stores command output
+    cli_output = ""
+
+    # If the device is SW1, configure VLANs and the trunk
+    if device == SW1:
+        cli_output = connection.send_config_set([
+            "vlan 99",
+            "name Native",
+            "vlan 20",
+            "name IT",
+            "vlan 30",
+            "name HR",
+            "interface g0/1",
+            "switchport trunk native vlan 99",
+            "switchport trunk allowed vlan 10,20,30,99"
+        ])
+
+    # If the device is R1, configure router-on-a-stick on g0/0
+    elif device == R1:
+        cli_output = connection.send_config_set([
+            "interface g0/1.20",
+            "encapsulation dot1Q 20",
+            "ip address 192.168.20.1 255.255.255.128",
+            "interface g0/1.30",
+            "encapsulation dot1Q 30",
+            "ip address 192.168.30.1 255.255.255.192",
+            "interface g0/1.99"
+        ])
 
 
+    # Display IOS commands output
+    print(cli_output)
 
-# Apply list of config commands
-connection.send_config_set(interface_description_list)
 
-# Display IOS command
-print("\nIOS command:"
-      "show running-config | begin interface FastEthernet0/1")
-print(connection.send_command(
-    "show running-config | begin interface FastEthernet0/1"))
-
-# Close SSH connection
-connection.disconnect()
-
-# Ensure the session log is written before script
-time.sleep(1)
-
-# Flushes remaining output and closes file
-if connection.session_log:
-    connection.session_log.close()
+    # Close SSH connection
+    connection.disconnect()
